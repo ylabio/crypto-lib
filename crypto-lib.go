@@ -26,6 +26,11 @@ import (
 
 // region PGP
 
+type PgpKeys struct {
+	PrivateKey string
+	PublicKey  string
+}
+
 //PGPEncryptPrivateKey шифрование и формирование человекочитаемого формата для закрытого ключа
 func PGPEncryptPrivateKey(pk *packet.PrivateKey, passphrase string) (string, error) {
 	//.MarshalPKCS1PrivateKey(pk)
@@ -230,17 +235,17 @@ func PGPEncrypt(publicKey, message string) (msg string, err error) {
 }
 
 //PGPGenerateKeysPair генерация ключей
-func PGPGenerateKeysPair(name, comment, email, password string) (publicKey, privateKey []byte, err error) {
+func PGPGenerateKeysPair(name, comment, email, password string) (keys *PgpKeys, err error) {
 	entity, err := openpgp.NewEntity(name, comment, email, nil)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	for _, en := range entity.Identities {
 		err := en.SelfSignature.SignUserId(en.UserId.Id, entity.PrimaryKey, entity.PrivateKey, nil)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 	}
 
@@ -253,12 +258,14 @@ func PGPGenerateKeysPair(name, comment, email, password string) (publicKey, priv
 
 	bufPriv, err := PGPEncryptPrivateKey(entity.PrivateKey, password)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	pgpCreatePublicKey(bufPub, entity.PrimaryKey)
 
-	return bufPub.Bytes(), []byte(bufPriv), err
+	_keys := PgpKeys{bufPriv, bufPub.String()}
+
+	return &_keys, err
 }
 
 // endregion
