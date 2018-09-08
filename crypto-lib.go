@@ -1,4 +1,4 @@
-package CryptoLib
+package main
 
 import (
 	"bytes"
