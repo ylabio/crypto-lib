@@ -228,7 +228,7 @@ func pgpCreateEntityFromKeys(pubKey *packet.PublicKey, privKey *packet.PrivateKe
 		PrivateKey: privKey,
 		Identities: make(map[string]*openpgp.Identity),
 	}
-	isPrimaryId := false
+	isPrimaryId := true
 
 	e.Identities[uid.Id] = &openpgp.Identity{
 		Name:   uid.Name,
