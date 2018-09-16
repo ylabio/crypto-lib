@@ -71,7 +71,7 @@ func PGPEncrypt(publicKey, message string) (msg string, err error) {
 	if err != nil {
 		return
 	}
-
+	pubEnt.PrimaryKey.KeyId = 0
 	m, err := pgp.Encrypt(pubEnt, []byte(message))
 
 	return string(m), err
@@ -228,7 +228,7 @@ func pgpCreateEntityFromKeys(pubKey *packet.PublicKey, privKey *packet.PrivateKe
 		PrivateKey: privKey,
 		Identities: make(map[string]*openpgp.Identity),
 	}
-	isPrimaryId := true
+	isPrimaryId := false
 
 	e.Identities[uid.Id] = &openpgp.Identity{
 		Name:   uid.Name,
