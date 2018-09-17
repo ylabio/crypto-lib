@@ -71,7 +71,7 @@ func PGPEncrypt(publicKey, message string) (msg string, err error) {
 	if err != nil {
 		return
 	}
-
+	pubEnt.PrimaryKey.KeyId = 0
 	m, err := pgp.Encrypt(pubEnt, []byte(message))
 
 	return string(m), err
