@@ -32,9 +32,12 @@ type PgpKeys struct {
 	PublicKey  string
 }
 
+const RSA_BITS int = 2048
+
 //PGPGenerateKeyPair - generate a pair of private and public keys
 func PGPGenerateKeyPair(name, comment, email, password string) (keys *PgpKeys, err error) {
-	entity, err := openpgp.NewEntity(name, comment, email, nil)
+	config := packet.Config{RSABits: RSA_BITS}
+	entity, err := openpgp.NewEntity(name, comment, email, &config)
 
 	if err != nil {
 		return nil, err
@@ -218,7 +221,7 @@ func pgpCreateEntityFromKeys(pubKey *packet.PublicKey, privKey *packet.PrivateKe
 		CompressionConfig: &packet.CompressionConfig{
 			Level: 9,
 		},
-		RSABits: 4096,
+		RSABits: RSA_BITS,
 	}
 	currentTime := config.Now()
 	uid := packet.NewUserId("", "", "")
