@@ -10,7 +10,7 @@ func main() {
 	println(newPk)
 	cipher, _ := PGPEncrypt(keys.PublicKey, "Hello World!")
 	println(cipher)
-	msg, _ := PGPDecrypt(keys.PrivateKey, cipher, "password")
+	msg, _ := PGPDecrypt(newPk, cipher, "newPassword")
 	println(msg)
 	aesCipher := AESEncrypt("password", "Hello World!")
 	println(aesCipher)
