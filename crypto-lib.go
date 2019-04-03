@@ -15,6 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sync"
 	"time"
 
 	"github.com/jchavannes/go-pgp/pgp"
@@ -23,6 +24,8 @@ import (
 	"golang.org/x/crypto/openpgp/packet"
 	"golang.org/x/crypto/pbkdf2"
 )
+
+var mu sync.Mutex
 
 // region PGP
 
@@ -70,6 +73,8 @@ func PGPGenerateKeyPair(name, comment, email, password string) (keys *PgpKeys, e
 
 //PGPEncrypt - encrypt by public key
 func PGPEncrypt(publicKey, message string) (msg string, err error) {
+	mu.Lock()
+	defer mu.Unlock()
 	pubEnt, err := pgp.GetEntity([]byte(publicKey), []byte{})
 	if err != nil {
 		return
@@ -82,6 +87,8 @@ func PGPEncrypt(publicKey, message string) (msg string, err error) {
 
 //PGPDecrypt - decrypt by private key
 func PGPDecrypt(privateKey, message, passphrase string) (msg string, err error) {
+	mu.Lock()
+	defer mu.Unlock()
 	b, r := pem.Decode([]byte(privateKey))
 	if len(r) > 0 {
 		return "", errors.New("Error Key: extra data")
@@ -280,6 +287,8 @@ const BLOCK_SIZE = 32 // 32 bytes for AES-256 encrypting
 
 //AESEncrypt - encrypt the message by aes-256
 func AESEncrypt(password, message string) string {
+	mu.Lock()
+	defer mu.Unlock()
 	plainText := []byte(message)
 	key := deriveKey(password, nil)
 	block, _ := aes.NewCipher(key)
@@ -299,6 +308,8 @@ func AESEncrypt(password, message string) string {
 
 //AESDecrypt - decrypt the message by aes-256
 func AESDecrypt(password, message string) (decodedmess string, err error) {
+	mu.Lock()
+	defer mu.Unlock()
 	cipherText, err := base64.URLEncoding.DecodeString(message)
 	if err != nil {
 		return
